@@ -7,7 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { PostsModule } from './modules/posts/posts.module';
-
+import { DatabaseModule } from './core/database/database.module';
 @Module({
   controllers: [AppController],
   providers: [AppService],
@@ -18,6 +18,7 @@ import { PostsModule } from './modules/posts/posts.module';
     UsersModule,
     AuthModule,
     PostsModule,
+    DatabaseModule,
   ],
 })
 export class AppModule {
