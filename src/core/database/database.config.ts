@@ -27,8 +27,6 @@ export const databaseConfig: IDatabaseConfig = {
   },
 };
 
-
-
 console.log(process.env);
 
 // ... otros console.log para otras variables

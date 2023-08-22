@@ -25,6 +25,4 @@ export class AppModule {
   constructor() {
     console.log('Application module initialized');
   }
-
 }
-
