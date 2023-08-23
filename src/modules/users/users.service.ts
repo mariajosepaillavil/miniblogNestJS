@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserDto } from './dto/user.dto';
 import { USER_REPOSITORY } from '../../core/constants';
-import { Sequelize } from 'sequelize-typescript';
+//import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class UsersService {

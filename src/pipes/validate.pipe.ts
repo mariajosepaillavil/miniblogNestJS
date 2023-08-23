@@ -13,9 +13,7 @@ export class ValidateInputPipe extends ValidationPipe {
       return await super.transform(value, metadata);
     } catch (e) {
       if (e instanceof BadRequestException) {
-        // Verificar si e.message es una cadena antes de acceder a e.message.message
-        const errorMessage = typeof e.message === 'string' ? e.message : '';
-        throw new UnprocessableEntityException(this.handleError(errorMessage));
+        throw new UnprocessableEntityException(this.handleError(e['response']));
       }
     }
   }
