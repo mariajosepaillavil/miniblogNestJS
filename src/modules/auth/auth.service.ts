@@ -34,7 +34,13 @@ export class AuthService {
     return { user: result, token };
   }
   private async generateToken(user) {
-    const token = await this.jwtService.signAsync(user);
+    const token = await this.jwtService.signAsync(user, {
+      secret: process.env.JWTKEY, 
+      //Me faltaba el secret de jwt. el "secret" en esta función se utiliza 
+      //para asegurar que el token JWT generado sea válido y seguro, 
+      //y solo pueda ser interpretado y verificado por el servidor que conoce el mismo
+      // "secret".
+    });
     return token;
   }
   private async hashPassword(password) {

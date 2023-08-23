@@ -28,6 +28,8 @@ export const databaseConfig: IDatabaseConfig = {
 };
 
 
+//Si son varios, se recomienda mantener json de la data.
+
 
 console.log(process.env);
 

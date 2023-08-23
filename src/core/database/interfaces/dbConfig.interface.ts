@@ -13,3 +13,5 @@ export interface IDatabaseConfig {
   test: IDatabaseConfigAttributes;
   production: IDatabaseConfigAttributes;
 }
+
+//No se puede configurar para cada ambiente, en el caso que sean varios.
