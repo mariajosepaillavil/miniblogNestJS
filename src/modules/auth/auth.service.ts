@@ -1,54 +1,84 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
-  async validateUser(username: string, pass: string) {
-    // find if user exist with this email
-    const user = await this.userService.findOneByEmail(username);
+
+  async validateUser(email: string, password: string) {
+    const user = await this.userService.findOneByEmail(email);
     if (!user) {
       return null;
-    } // find if user password match
-    const match = await this.comparePassword(pass, user.password);
-    if (!match) {
+    }
+
+    const passwordMatch = await this.comparePassword(password, user.password);
+    if (!passwordMatch) {
       return null;
-    } // tslint:disable-next-line: no-string-literal
-    const { password, ...result } = user['dataValues'];
-    return result;
+    }
+
+    const { password: userPassword, ...userData } = user['dataValues'];
+    return userData;
   }
+
   public async login(user) {
     const token = await this.generateToken(user);
     return { user, token };
   }
-  public async create(user) {
-    // hash the password
-    const pass = await this.hashPassword(user.password); // create the user
-    const newUser = await this.userService.create({ ...user, password: pass }); // tslint:disable-next-line: no-string-literal
-    const { password, ...result } = newUser['dataValues']; // generate token
-    const token = await this.generateToken(result); // return the user and the token
-    return { user: result, token };
+
+  public async create(newUser) {
+    try {
+      const hashedPassword = await this.hashPassword(newUser.password);
+
+      const createdUser = await this.userService.create({
+        ...newUser,
+        password: hashedPassword,
+      });
+
+      const { password, ...userResult } = createdUser['dataValues'];
+      const token = await this.generateToken(userResult);
+
+      return { newUser: userResult, user: userResult, token };
+    } catch (error) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        console.error('Email ya existe:', newUser.email);
+        throw new BadRequestException(
+          'El correo electrónico ya está registrado',
+        );
+      }
+
+      console.error(error);
+      throw new InternalServerErrorException('Error creando usuario');
+    }
   }
+
   private async generateToken(user) {
-    const token = await this.jwtService.signAsync(user, {
-      secret: process.env.JWTKEY, 
-      //Me faltaba el secret de jwt. el "secret" en esta función se utiliza 
-      //para asegurar que el token JWT generado sea válido y seguro, 
-      //y solo pueda ser interpretado y verificado por el servidor que conoce el mismo
-      // "secret".
-    });
-    return token;
+    try {
+      const token = await this.jwtService.signAsync(user, {
+        secret: process.env.JWTKEY,
+      });
+      return token;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Error generando token');
+    }
   }
+
   private async hashPassword(password) {
     const hash = await bcrypt.hash(password, 10);
     return hash;
   }
+
   private async comparePassword(enteredPassword, dbPassword) {
-    const match = await bcrypt.compare(enteredPassword, dbPassword);
-    return match;
+    const passwordMatch = await bcrypt.compare(enteredPassword, dbPassword);
+    return passwordMatch;
   }
 }

@@ -23,3 +23,5 @@ export class ValidateInputPipe extends ValidationPipe {
     return errors.map((error) => error.constraints);
   }
 }
+
+// ValidateInputPipe se utiliza para personalizar el manejo de errores durante la validación de entradas en NestJS. Si ocurre un error de validación, convierte los errores en mensajes de error más simples y lanza una excepción diferente (UnprocessableEntityException) para mostrar un mensaje más claro al usuario.
